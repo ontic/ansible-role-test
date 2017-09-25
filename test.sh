@@ -18,7 +18,13 @@ red='\033[0;31m'
 green='\033[0;32m'
 neutral='\033[0m'
 
+action=$1
 timestamp=$(date +%s)
+
+if [ $action != "test" ] && [ $action != "install" ]; then
+  printf ${red}"Invalid action."
+  exit 1
+fi
 
 # Allow environment variables to override defaults.
 distribution=${distribution:-"debian"}
@@ -29,7 +35,6 @@ container_id=${container_id:-$timestamp}
 test_idempotence=${test_idempotence:-"true"}
 image="$distribution:$version"
 
-## Set up vars for Docker setup.
 # Debian 9
 if [ $image = "debian:9" ]; then
   init="/lib/systemd/systemd"
@@ -44,48 +49,57 @@ elif [ $image = "centos:7" ]; then
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 fi
 
-# Download Docker file for the supplied OS.
-wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-role-test/master/docker/Dockerfile.$distribution-$version
+eval ${action}
 
-# Build and run the container using the supplied OS.
-printf ${green}"Starting Docker container: $distribution/$version."${neutral}"\n"
-docker pull $image
-docker build --rm=true --file=tests/Dockerfile --tag=${distribution}-${version}:ansible tests
-docker run --detach --volume="$PWD":/etc/ansible/roles/role_under_test:rw --name $container_id $opts $image $init
+install()
+{
+  # Download Docker file for the supplied OS.
+  wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-role-test/master/docker/Dockerfile.$distribution-$version
+  
+  # Build the container using the supplied OS.
+  printf ${green}"Starting Docker container: $distribution/$version."${neutral}"\n"
+  docker pull $image
+  docker build --rm=true --file=tests/Dockerfile --tag=${distribution}-${version}:ansible tests
+}
 
-printf "\n"
-
-# Install requirements if `requirements.yml` is present.
-if [ -f "$PWD/tests/requirements.yml" ]; then
-  printf ${green}"Installing Ansible role dependencies."${neutral}"\n"
-  docker exec --tty $container_id env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
-fi
-
-printf "\n"
-
-# Test Ansible syntax.
-printf ${green}"Checking Ansible playbook syntax."${neutral}
-docker exec --tty $container_id env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook --syntax-check
-
-printf "\n"
-
-# Run Ansible playbook.
-printf ${green}"Running Ansible playbook: docker exec $container_id env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook"${neutral}
-docker exec $container_id env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook
-
-if [ "$test_idempotence" = true ]; then
-  # Run Ansible playbook again (idempotence test).
-  printf ${green}"Running Ansible playbook again: testing idempotency"${neutral}
-  idempotence=$(mktemp)
-  docker exec $container_id ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook | tee -a $idempotence
-  tail $idempotence \
-    | grep -q 'changed=0.*failed=0' \
-    && (printf ${green}'Idempotence test: pass'${neutral}"\n") \
-    || (printf ${red}'Idempotence test: fail'${neutral}"\n" && exit 1)
-fi
-
-# Remove the Docker container (if configured).
-if [ "$cleanup" = true ]; then
-  printf "Removing Docker container...\n"
-  docker rm -f $container_id
-fi
+test()
+{
+  docker run --detach --volume="$PWD":/etc/ansible/roles/role_under_test:rw --name $container_id $opts $image $init
+  
+  printf "\n"
+  
+  # Install requirements if `requirements.yml` is present.
+  if [ -f "$PWD/tests/requirements.yml" ]; then
+    printf ${green}"Installing Ansible role dependencies."${neutral}"\n"
+    docker exec --tty $container_id env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
+  fi
+  
+  printf "\n"
+  
+  # Test Ansible syntax.
+  printf ${green}"Checking Ansible playbook syntax."${neutral}
+  docker exec --tty $container_id env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook --syntax-check
+  
+  printf "\n"
+  
+  # Run Ansible playbook.
+  printf ${green}"Running Ansible playbook: docker exec $container_id env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook"${neutral}
+  docker exec $container_id env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook
+  
+  if [ "$test_idempotence" = true ]; then
+    # Run Ansible playbook again (idempotence test).
+    printf ${green}"Running Ansible playbook again: testing idempotency"${neutral}
+    idempotence=$(mktemp)
+    docker exec $container_id ansible-playbook /etc/ansible/roles/role_under_test/tests/$playbook | tee -a $idempotence
+    tail $idempotence \
+      | grep -q 'changed=0.*failed=0' \
+      && (printf ${green}'Idempotence test: pass'${neutral}"\n") \
+      || (printf ${red}'Idempotence test: fail'${neutral}"\n" && exit 1)
+  fi
+  
+  # Remove the Docker container (if configured).
+  if [ "$cleanup" = true ]; then
+    printf "Removing Docker container...\n"
+    docker rm -f $container_id
+  fi
+}
