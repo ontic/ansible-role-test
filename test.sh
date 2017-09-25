@@ -44,8 +44,6 @@ elif [ $image = "centos:7" ]; then
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 fi
 
-echo --volume="$PWD":/etc/ansible/roles/role_under_test:rw
-
 # Download Docker file for the supplied OS.
 wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-role-test/master/docker/Dockerfile.$distribution-$version
 
