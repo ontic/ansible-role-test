@@ -27,18 +27,17 @@ playbook=${playbook:-"test.yml"}
 cleanup=${cleanup:-"true"}
 container_id=${container_id:-$timestamp}
 test_idempotence=${test_idempotence:-"true"}
-image="$distribution:$version"
 
 # Debian 9
-if [ $image = "debian:9" ]; then
+if [ "${distribution}/${version}" = "debian/9" ]; then
   init="/lib/systemd/systemd"
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 # Ubuntu 16.04
-elif [ $image = "ubuntu:16.04" ]; then
+elif [ "${distribution}/${version}" = "ubuntu/16.04" ]; then
   init="/lib/systemd/systemd"
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 # CentOS 7
-elif [ $image = "centos:7" ]; then
+elif [ "${distribution}/${version}" = "centos/7" ]; then
   init="/usr/lib/systemd/systemd"
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 fi
@@ -48,9 +47,9 @@ wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-
 
 # Build and run the container using the supplied OS.
 printf ${green}"Starting Docker container: ${distribution}/${version}"${neutral}"\n"
-docker pull $image
-docker build --rm=true --file=tests/Dockerfile --tag=${distribution}-${version}:ansible tests
-docker run --detach --volume=${PWD}:/etc/ansible/roles/role_under_test:rw --name $container_id $opts $image $init
+docker pull ${distribution}:${version}
+docker build --rm=true --file=tests/Dockerfile --tag=${distribution}-${version}:ansible
+docker run --detach --volume=${PWD}:/etc/ansible/roles/role_under_test:rw --name $container_id $opts ${distribution}-${version}:ansible $init
 
 printf "\n"
 
