@@ -26,4 +26,4 @@ RUN rm -fr /sbin/initctl \
 
 # Install Ansible inventory file.
 RUN mkdir -p /etc/ansible \
-  echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
+  && echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
