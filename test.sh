@@ -23,7 +23,7 @@ timestamp=$(date +%s)
 # Allow environment variables to override defaults.
 distribution=${distribution:-"debian"}
 version=${version:-"stretch"}
-playbook=${playbook:-"playbook.yml"}
+playbook=${playbook:-"test.yml"}
 cleanup=${cleanup:-"true"}
 container_id=${container_id:-$timestamp}
 test_idempotence=${test_idempotence:-"true"}
