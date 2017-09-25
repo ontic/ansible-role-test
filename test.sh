@@ -49,8 +49,6 @@ elif [ $image = "centos:7" ]; then
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 fi
 
-eval ${action}
-
 install()
 {
   # Download Docker file for the supplied OS.
@@ -103,3 +101,5 @@ test()
     docker rm -f $container_id
   fi
 }
+
+eval ${action}
