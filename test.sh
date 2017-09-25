@@ -48,7 +48,7 @@ wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-
 # Build and run the container using the supplied OS.
 printf ${green}"Starting Docker container: ${distribution}/${version}"${neutral}"\n"
 docker pull ${distribution}:${version}
-docker build --rm=true --file=Dockerfile --tag=${distribution}-${version}:ansible tests
+docker build --rm=true --file=tests/Dockerfile --tag=${distribution}-${version}:ansible tests
 docker run --detach --volume=${PWD}:/etc/ansible/roles/role_under_test:rw --name $container_id $opts ${distribution}-${version}:ansible $init
 
 printf "\n"
