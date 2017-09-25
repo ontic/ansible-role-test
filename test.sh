@@ -62,7 +62,7 @@ install()
 
 test()
 {
-  docker run --detach --volume="$PWD":/etc/ansible/roles/role_under_test:rw --name $container_id $opts $image $init
+  docker run -v --detach --volume="$PWD":/etc/ansible/roles/role_under_test:rw --name $container_id $opts $image $init
   
   printf "\n"
   
