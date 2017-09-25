@@ -45,7 +45,7 @@ elif [ $image = "centos:7" ]; then
 fi
 
 # Download Docker file for the supplied OS.
-wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-role-test/master/Dockerfile.$distribution-$version
+wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-role-test/master/docker/Dockerfile.$distribution-$version
 
 # Build and run the container using the supplied OS.
 printf ${green}"Starting Docker container: $distribution/$version."${neutral}"\n"
