@@ -44,6 +44,9 @@ elif [ $image = "centos:7" ]; then
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 fi
 
+echo "init=$init \n"
+echo "opts=$opts \n"
+
 # Download Docker file for the supplied OS.
 wget -O ${PWD}/tests/Dockerfile https://raw.githubusercontent.com/ontic/ansible-role-test/master/docker/Dockerfile.$distribution-$version
 
