@@ -53,6 +53,10 @@ build()
   docker pull ${distribution}:${version}
   docker build --rm=true --file=tests/Dockerfile --tag=${distribution}-${version}:ansible tests
   docker run --detach --volume=${PWD}:/etc/ansible/roles/role_under_test:rw --name $container_id $opts ${distribution}-${version}:ansible $init
+  
+  if [ $distribution = "debian" ] || [ $distribution = "ubuntu" ]; then
+    docker exec --tty $container_id env TERM=xterm apt-get update
+  fi
 }
 
 test()
