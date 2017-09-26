@@ -5,7 +5,7 @@
 # Usage: [OPTIONS] ./tests/test.sh
 #   - distribution: a supported Docker distribution name (default = "debian")
 #   - version: a associated Docker distribution version (default = "stretch")
-#   - playbook: a playbook in the tests directory (default = "playbook.yml")
+#   - playbook: a playbook in the tests directory (default = "test.yml")
 #   - cleanup: whether to remove the Docker container (default = true)
 #   - container_id: the --name to set for the container (default = timestamp)
 #   - test_idempotence: whether to test playbook's idempotence (default = true)
@@ -54,7 +54,9 @@ build()
   docker build --rm=true --file=tests/Dockerfile --tag=${distribution}-${version}:ansible tests
   docker run --detach --volume=${PWD}:/etc/ansible/roles/role_under_test:rw --name $container_id $opts ${distribution}-${version}:ansible $init
   
+  # If the distribution is either Debian or Ubuntu
   if [ $distribution = "debian" ] || [ $distribution = "ubuntu" ]; then
+    # Update the package lists now so playbooks do not need to do this.
     docker exec --tty $container_id env TERM=xterm apt-get update
   fi
 }
