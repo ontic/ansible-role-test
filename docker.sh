@@ -26,7 +26,7 @@ neutral='\033[0m'
 # First argument used to execute an action.
 action="${1}_action"
 
-if [ "${action}" != "build" ] && [ "${action}" != "test" ] && [ "${action}" != "verify" ]; then
+if [ "${action}" != "build" ] || [ "${action}" != "test" ] || [ "${action}" != "verify" ]; then
   printf "${red}Expected a supplied action of 'build', 'test' or 'verify'${neutral}\n"
   exit 1
 fi
