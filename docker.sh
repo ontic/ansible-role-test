@@ -2,7 +2,7 @@
 #
 # Ansible role test shim.
 #
-# Usage: [OPTIONS] ./tests/test.sh
+# Usage: [OPTIONS] ./tests/test.sh [build | test | verify ]
 #   - distribution: a supported Docker distribution name (default = "debian")
 #   - version: a associated Docker distribution version (default = "stretch")
 #   - playbook: a playbook in the tests directory (default = "test.yml")
@@ -18,7 +18,9 @@ red='\033[0;31m'
 green='\033[0;32m'
 neutral='\033[0m'
 
+# Supplied action to execute
 action=$1
+# Timestamp used as the default container ID.
 timestamp=$(date +%s)
 
 # Allow environment variables to override defaults.
@@ -102,7 +104,7 @@ test()
 verify()
 {
   if [ -f "${PWD}/tests/test-verify.sh" ]; then
-    chmod +x ${PWD}/tests/verify.sh
+    chmod +x ${PWD}/tests/test-verify.sh
     ${PWD}/tests/test-verify.sh
   fi
 }

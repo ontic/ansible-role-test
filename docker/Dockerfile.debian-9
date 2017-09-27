@@ -21,7 +21,7 @@ RUN pip install ansible cryptography
 
 # Workaround for upstart.
 RUN rm -f /sbin/initctl \
-  && wget -O /sbin/initctl https://raw.githubusercontent.com/ontic/ansible-role-test/master/initctl \
+  && wget -O /sbin/initctl https://raw.githubusercontent.com/ontic/ansible-role-test/master/docker/sbin/initctl \
   && chmod +x /sbin/initctl
 
 # Install Ansible inventory file.
