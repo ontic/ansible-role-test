@@ -61,7 +61,7 @@ build_action()
   wget -O "${PWD}/tests/Dockerfile" "${base_url}/Dockerfile.${distribution}-${version}"
   
   # Build and run the container using the supplied distribution and version.
-  printf "${yellow}Starting Docker container: ${distribution}/${version}${neutral}\n"
+  printf "${green}Starting Docker container: ${distribution}/${version}${neutral}\n"
   docker pull "${distribution}:${version}"
   docker build --rm=true --file=tests/Dockerfile --tag="${distribution}-${version}:ansible" tests
   docker run --detach --volume="${PWD}:/etc/ansible/roles/role_under_test:rw" --name="${container_id}" ${opts} "${distribution}-${version}:ansible" ${init}
@@ -79,7 +79,7 @@ test_action()
   # If a requirements.yml file exists.
   if [ -f "${PWD}/tests/requirements.yml" ]; then
     # Install roles dependencies using Ansible Galaxy.
-    printf "\n${green}Installing Ansible role dependencies.${neutral}\n"
+    printf "\n${yellow}Installing Ansible role dependencies.${neutral}\n"
     docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
   fi
   
