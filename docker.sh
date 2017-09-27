@@ -18,8 +18,9 @@
 set -e
 
 # Terminal colors.
-red='\033[0;31m'
-green='\033[0;32m'
+red='\033[1;31m'
+green='\033[1;32m'
+yellow='\033[1;33m'
 neutral='\033[0m'
 
 if [ "${1}" != "build" ] && [ "${1}" != "test" ] && [ "${1}" != "verify" ]; then
@@ -60,7 +61,7 @@ build_action()
   wget -O "${PWD}/tests/Dockerfile" "${base_url}/Dockerfile.${distribution}-${version}"
   
   # Build and run the container using the supplied distribution and version.
-  printf "${green}Starting Docker container: ${distribution}/${version}${neutral}\n"
+  printf "${yellow}Starting Docker container: ${distribution}/${version}${neutral}\n"
   docker pull "${distribution}:${version}"
   docker build --rm=true --file=tests/Dockerfile --tag="${distribution}-${version}:ansible" tests
   docker run --detach --volume="${PWD}:/etc/ansible/roles/role_under_test:rw" --name="${container_id}" ${opts} "${distribution}-${version}:ansible" ${init}
@@ -78,18 +79,16 @@ test_action()
   # If a requirements.yml file exists.
   if [ -f "${PWD}/tests/requirements.yml" ]; then
     # Install roles dependencies using Ansible Galaxy.
-    printf "${green}Installing Ansible role dependencies.${neutral}\n"
+    printf "\n${green}Installing Ansible role dependencies.${neutral}\n"
     docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
-    printf "\n"
   fi
   
   # Test playbook syntax.
-  printf "${green}Checking Ansible playbook syntax.${neutral}\n"
+  printf "\n${green}Checking Ansible playbook syntax.${neutral}\n"
   docker exec --tty ${container_id} env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook} --syntax-check
-  printf "\n"
   
   # Run the playbook.
-  printf "${green}Running Ansible playbook.${neutral}\n"
+  printf "\n${green}Running Ansible playbook.${neutral}\n"
   docker exec ${container_id} env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook}
   
   # If testing for idempotence is configured.
@@ -97,19 +96,18 @@ test_action()
     # Create a temporary file for storing output.
     idempotence=$(mktemp)
     # Run the playbook again and record the output.
-    printf "${green}Testing Ansible playbook idempotence.${neutral}\n"
+    printf "\n${green}Testing Ansible playbook idempotence.${neutral}\n"
     docker exec ${container_id} ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook} | tee -a ${idempotence}
     tail ${idempotence} | grep -q 'changed=0.*failed=0' \
-      && (printf ${green}'Idempotence test: pass'${neutral}"\n") \
-      || (printf ${red}'Idempotence test: fail'${neutral}"\n" && exit 1)
+      && (printf ${green}'Idempotence test: passed'${neutral}) \
+      || (printf ${red}'Idempotence test: failed'${neutral} && exit 1)
   fi
   
   # If removing the container is configured.
   if [ "${cleanup}" = true ]; then
     # Remove the container.
-    printf "${green}Removing Docker container.${neutral}\n"
+    printf "\n${green}Removing Docker container.${neutral}\n"
     docker rm -f ${container_id}
-    printf "\n"
   fi
 }
 
@@ -119,7 +117,7 @@ verify_action()
   # If a test-verify.sh file exists.
   if [ -f "${PWD}/tests/test-verify.sh" ]; then
     # Ensure the file is executable then execute it.
-    printf "${green}Testing Ansible playbook idempotence.${neutral}\n\n"
+    printf "\n${green}Verifying provisioning.${neutral}\n\n"
     chmod +x ${PWD}/tests/test-verify.sh
     ${PWD}/tests/test-verify.sh
   fi
