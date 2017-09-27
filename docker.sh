@@ -79,12 +79,12 @@ test_action()
   # If a requirements.yml file exists.
   if [ -f "${PWD}/tests/requirements.yml" ]; then
     # Install roles dependencies using Ansible Galaxy.
-    printf "\n${yellow}Installing Ansible role dependencies.${neutral}\n"
+    printf "\n${green}Installing Ansible role dependencies.${neutral}\n"
     docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
   fi
   
   # Test playbook syntax.
-  printf "\n${green}Checking Ansible playbook syntax.${neutral}\n"
+  printf "\n${yellow}Checking Ansible playbook syntax.${neutral}\n"
   docker exec --tty ${container_id} env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook} --syntax-check
   
   # Run the playbook.
