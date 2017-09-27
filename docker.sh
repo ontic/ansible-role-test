@@ -23,14 +23,13 @@ green='\033[0;32m'
 orange='\033[38;5;202m'
 neutral='\033[0m'
 
-# First argument used to execute an action.
-action="${1}_action"
-
-if [ "${action}" != "build" ] || [ "${action}" != "test" ] || [ "${action}" != "verify" ]; then
+if [ "${1}" != "build" ] && [ "${1}" != "test" ] && [ "${1}" != "verify" ]; then
   printf "${red}Expected a supplied action of 'build', 'test' or 'verify'${neutral}\n"
   exit 1
 fi
 
+# First argument used to execute an action.
+action="${1}_action"
 # Timestamp used as the default container ID.
 timestamp=$(date +%s)
 
