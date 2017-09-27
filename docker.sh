@@ -21,6 +21,7 @@ set -e
 red='\033[0;31m'
 green='\033[0;32m'
 yellow='\033[0;33m'
+purple='\033[1;35m'
 heading='\033[1;32m'
 neutral='\033[0m'
 
@@ -112,13 +113,13 @@ test_action()
   fi
 }
 
-# Verify provisioning
+# Verify the system
 verify_action()
 {
   # If a test-verify.sh file exists.
   if [ -f "${PWD}/tests/test-verify.sh" ]; then
     # Ensure the file is executable then execute it.
-    printf "\n${heading}Verifying provisioning.${neutral}\n\n"
+    printf "\n${purple}Verifying system details.${neutral}\n\n"
     chmod +x ${PWD}/tests/test-verify.sh
     ${PWD}/tests/test-verify.sh
   fi
