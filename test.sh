@@ -64,7 +64,7 @@ build()
 test()
 {
   # Install requirements if `requirements.yml` is present.
-  if [ -f "$PWD/tests/requirements.yml" ]; then
+  if [ -f "${PWD}/tests/requirements.yml" ]; then
     printf ${green}"Installing Ansible role dependencies."${neutral}"\n"
     docker exec --tty $container_id env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
   fi
@@ -96,6 +96,14 @@ test()
   if [ "$cleanup" = true ]; then
     printf "Removing Docker container...\n"
     docker rm -f $container_id
+  fi
+}
+
+verify()
+{
+  if [ -f "${PWD}/tests/test-verify.sh" ]; then
+    chmod +x ${PWD}/tests/verify.sh
+    ${PWD}/tests/test-verify.sh
   fi
 }
 
