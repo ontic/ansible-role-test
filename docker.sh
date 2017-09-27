@@ -20,7 +20,6 @@ set -e
 # Terminal colors.
 red='\033[0;31m'
 green='\033[0;32m'
-orange='\033[38;5;202m'
 neutral='\033[0m'
 
 if [ "${1}" != "build" ] && [ "${1}" != "test" ] && [ "${1}" != "verify" ]; then
@@ -120,7 +119,7 @@ verify_action()
   # If a test-verify.sh file exists.
   if [ -f "${PWD}/tests/test-verify.sh" ]; then
     # Ensure the file is executable then execute it.
-    printf "${orange}Testing Ansible playbook idempotence.${neutral}\n"
+    printf "${green}Testing Ansible playbook idempotence.${neutral}\n\n"
     chmod +x ${PWD}/tests/test-verify.sh
     ${PWD}/tests/test-verify.sh
   fi
