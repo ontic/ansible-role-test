@@ -24,6 +24,10 @@ RUN rm -f /sbin/initctl \
   && wget -O /sbin/initctl https://raw.githubusercontent.com/ontic/ansible-role-test/master/docker/sbin/initctl \
   && chmod +x /sbin/initctl
 
+# Workaround for NFS
+RUN echo "nfs 2049/tcp" >> /etc/services
+RUN echo "nfs 111/udp" >> /etc/services
+
 # Install Ansible inventory file.
 RUN mkdir -p /etc/ansible \
   && printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
