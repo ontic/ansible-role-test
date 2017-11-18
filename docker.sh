@@ -39,6 +39,7 @@ timestamp=$(date +%s)
 distribution=${distribution:-"debian"}
 version=${version:-"stretch"}
 playbook=${playbook:-"test.yml"}
+requirements=${playbook:-"requirements.yml"}
 cleanup=${cleanup:-"true"}
 container_id=${container_id:-$timestamp}
 test_idempotence=${test_idempotence:-"true"}
@@ -78,8 +79,8 @@ build_action()
 # Test the role
 test_action()
 {
-  # If a requirements.yml file exists.
-  if [ -f "${PWD}/tests/requirements.yml" ]; then
+  # If a requirements file exists.
+  if [ -f "${PWD}/tests/${requirements}" ]; then
     # Install roles dependencies using Ansible Galaxy.
     printf "\n${heading}Installing Ansible role dependencies.${neutral}\n"
     docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
