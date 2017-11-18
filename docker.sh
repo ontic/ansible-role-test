@@ -83,7 +83,7 @@ test_action()
   if [ -f "${PWD}/tests/${requirements}" ]; then
     # Install roles dependencies using Ansible Galaxy.
     printf "\n${heading}Installing Ansible role dependencies.${neutral}\n"
-    docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/requirements.yml
+    docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/${requirements}
   fi
   
   # Test playbook syntax.
