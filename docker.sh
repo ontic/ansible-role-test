@@ -58,15 +58,6 @@ elif [ "${distribution}/${version}" = "centos/7" ]; then
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 fi
 
-# If the folder name is empty.
-if [ -z "${folder}" ]; then
-    # Set the play book path as the current working directory.
-    playbook_path="${PWD}"
-else
-    # Append the folder to the current working directory.
-    playbook_path="${PWD}/${folder}"
-fi
-
 # Build the container
 build_action()
 {
@@ -90,19 +81,19 @@ build_action()
 test_action()
 {
   # If a requirements file exists.
-  if [ -f "${playbook_path}/${requirements}" ]; then
+  if [ -f "${PWD}/${folder}/${requirements}" ]; then
     # Install roles dependencies using Ansible Galaxy.
     printf "\n${heading}Installing Ansible role dependencies.${neutral}\n"
-    docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r ${playbook_path}/${requirements}
+    docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/${folder}/${requirements}
   fi
   
   # Test playbook syntax.
   printf "\n${heading}Checking Ansible playbook syntax.${neutral}\n"
-  docker exec --tty ${container_id} env TERM=xterm ansible-playbook ${playbook_path}/${playbook} --syntax-check
+  docker exec --tty ${container_id} env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/${folder}/${playbook} --syntax-check
   
   # Run the playbook.
   printf "\n${heading}Running Ansible playbook.${neutral}\n"
-  docker exec ${container_id} env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook ${playbook_path}/${playbook}
+  docker exec ${container_id} env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook /etc/ansible/roles/role_under_test/${folder}/${playbook}
   
   # If testing for idempotence is configured.
   if [ "${test_idempotence}" = true ]; then
@@ -110,7 +101,7 @@ test_action()
     idempotence=$(mktemp)
     # Run the playbook again and record the output.
     printf "\n${heading}Testing Ansible playbook idempotence.${neutral}\n"
-    docker exec ${container_id} ansible-playbook ${playbook_path}/${playbook} | tee -a ${idempotence}
+    docker exec ${container_id} ansible-playbook /etc/ansible/roles/role_under_test/${folder}/${playbook} | tee -a ${idempotence}
     tail ${idempotence} | grep -q 'changed=0.*failed=0' \
       && (printf ${green}"Idempotence test: [pass]"${neutral}) \
       || (printf ${red}"Idempotence test: [fail]"${neutral} && exit 1)
@@ -128,11 +119,11 @@ test_action()
 verify_action()
 {
   # If a test-verify.sh file exists.
-  if [ -f "${playbook_path}/test-verify.sh" ]; then
+  if [ -f "${PWD}/tests/test-verify.sh" ]; then
     # Ensure the file is executable then execute it.
     printf "\n${purple}Verifying system details.${neutral}\n\n"
-    chmod +x ${playbook_path}/test-verify.sh
-    ${playbook_path}/test-verify.sh
+    chmod +x ${PWD}/tests/test-verify.sh
+    ${PWD}/tests/test-verify.sh
   fi
 }
 
