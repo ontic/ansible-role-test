@@ -38,6 +38,7 @@ timestamp=$(date +%s)
 # Override default values with environment variables.
 distribution=${distribution:-"debian"}
 version=${version:-"stretch"}
+folder=${folder:-"tests"}
 playbook=${playbook:-"test.yml"}
 requirements=${requirements:-"requirements.yml"}
 cleanup=${cleanup:-"true"}
@@ -55,6 +56,15 @@ elif [ "${distribution}/${version}" = "ubuntu/16.04" ]; then
 elif [ "${distribution}/${version}" = "centos/7" ]; then
   init="/usr/lib/systemd/systemd"
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+fi
+
+# If the folder name is empty.
+if [ -z "${folder}" ]; then
+    # Set the play book path as the current working directory.
+    playbook_path="${PWD}"
+else
+    # Append the folder name to the current working directory.
+    playbook_path="${PWD}/${folder}"
 fi
 
 # Build the container
