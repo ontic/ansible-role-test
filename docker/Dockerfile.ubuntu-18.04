@@ -3,7 +3,6 @@ FROM ubuntu:18.04
 # Install dependencies.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       python-software-properties \
        software-properties-common \
        sudo systemd wget \
     && rm -rf /var/lib/apt/lists/* \
