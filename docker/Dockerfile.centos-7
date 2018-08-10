@@ -16,7 +16,7 @@ rm -f /lib/systemd/system/anaconda.target.wants/*;
 RUN yum makecache fast \
  && yum -y install deltarpm epel-release initscripts \
  && yum -y update \
- && yum -y install sudo which wget ansible \
+ && yum -y install sudo which wget ansible git \
  && yum clean all
 
 # Disable requiretty.
@@ -26,5 +26,7 @@ RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 RUN mkdir -p /etc/ansible \
   && printf "[local]\nlocalhost ansible_connection=local" >> /etc/ansible/hosts
 
+# Set working directory.
+WORKDIR /etc/ansible/roles/role_under_test
 VOLUME ["/sys/fs/cgroup"]
 CMD ["/usr/sbin/init"]

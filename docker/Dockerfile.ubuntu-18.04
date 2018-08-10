@@ -4,7 +4,7 @@ FROM ubuntu:18.04
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        software-properties-common \
-       sudo systemd wget \
+       sudo systemd wget git \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/share/doc && rm -Rf /usr/share/man \
     && apt-get clean
@@ -26,3 +26,6 @@ RUN rm -f /sbin/initctl \
 # Install Ansible inventory file.
 RUN mkdir -p /etc/ansible \
   && printf "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
+
+# Set working directory.
+WORKDIR /etc/ansible/roles/role_under_test

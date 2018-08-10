@@ -39,6 +39,7 @@ timestamp=$(date +%s)
 distribution=${distribution:-"debian"}
 version=${version:-"stretch"}
 playbook=${playbook:-"test.yml"}
+inventory=${inventory:-"hosts"}
 requirements=${requirements:-"requirements.yml"}
 cleanup=${cleanup:-"true"}
 container_id=${container_id:-$timestamp}
@@ -86,16 +87,16 @@ test_action()
   if [ -f "${PWD}/tests/${requirements}" ]; then
     # Install roles dependencies using Ansible Galaxy.
     printf "\n${heading}Installing Ansible role dependencies.${neutral}\n"
-    docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r /etc/ansible/roles/role_under_test/tests/${requirements}
+    docker exec --tty ${container_id} env TERM=xterm ansible-galaxy install -r tests/${requirements}
   fi
   
   # Test playbook syntax.
   printf "\n${heading}Checking Ansible playbook syntax.${neutral}\n"
-  docker exec --tty ${container_id} env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook} --syntax-check
+  docker exec --tty ${container_id} env TERM=xterm ansible-playbook tests/${playbook} --syntax-check
   
   # Run the playbook.
   printf "\n${heading}Running Ansible playbook.${neutral}\n"
-  docker exec ${container_id} env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook}
+  docker exec ${container_id} env TERM=xterm env ANSIBLE_FORCE_COLOR=1 ansible-playbook tests/${playbook}
   
   # If testing for idempotence is configured.
   if [ "${test_idempotence}" = true ]; then
@@ -103,7 +104,7 @@ test_action()
     idempotence=$(mktemp)
     # Run the playbook again and record the output.
     printf "\n${heading}Testing Ansible playbook idempotence.${neutral}\n"
-    docker exec ${container_id} ansible-playbook /etc/ansible/roles/role_under_test/tests/${playbook} | tee -a ${idempotence}
+    docker exec ${container_id} ansible-playbook tests/${playbook} | tee -a ${idempotence}
     tail ${idempotence} | grep -q 'changed=0.*failed=0' \
       && (printf ${green}"Idempotence test: [pass]"${neutral}) \
       || (printf ${red}"Idempotence test: [fail]"${neutral} && exit 1)
