@@ -56,6 +56,9 @@ elif [ "${distribution}/${version}" = "ubuntu/16.04" ]; then
 elif [ "${distribution}/${version}" = "ubuntu/18.04" ]; then
   init="/lib/systemd/systemd"
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+elif [ "${distribution}/${version}" = "ubuntu/20.04" ]; then
+  init="/lib/systemd/systemd"
+  opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 elif [ "${distribution}/${version}" = "centos/7" ]; then
   init="/usr/lib/systemd/systemd"
   opts="--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
