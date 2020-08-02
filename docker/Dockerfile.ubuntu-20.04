@@ -6,7 +6,7 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        software-properties-common \
-       sudo systemd wget git python3-pip \
+       sudo systemd gnupg wget git python3-pip \
     && pip3 install ansible \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/share/doc && rm -Rf /usr/share/man \
